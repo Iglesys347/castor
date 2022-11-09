@@ -1,0 +1,8 @@
+FROM python
+
+WORKDIR /usr/app/
+
+RUN pip install docker jinja2
+
+COPY haproxy.j2 /usr/app/haproxy.j2
+COPY gen_conf.py /usr/app/gen_conf.py

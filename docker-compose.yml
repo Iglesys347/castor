@@ -1,0 +1,44 @@
+version: "3.6"
+
+services:
+  tor:
+    build:
+      context: ./tor
+      dockerfile: Dockerfile
+    networks:
+      - net_tor
+
+  haproxy:
+    image: haproxy:alpine
+    restart: always
+    depends_on:
+      tor:
+        condition: service_healthy
+      haproxy-conf-generator:
+        condition: service_completed_successfully
+    ports:
+      - ${HTTP_PROXY_PORT}:80
+    volumes:
+      - haproxy_conf:/usr/local/etc/haproxy
+    networks:
+      - net_tor
+
+  haproxy-conf-generator:
+    build: ./conf-generator
+    command: python gen_conf.py
+    depends_on:
+      tor:
+        condition: service_healthy
+    volumes:
+      - haproxy_conf:/usr/local/etc/haproxy
+      - /var/run/docker.sock:/tmp/docker.sock
+    networks:
+      - net_tor
+
+volumes:
+  haproxy_conf:
+
+
+networks:
+  net_tor:
+    name: net_tor

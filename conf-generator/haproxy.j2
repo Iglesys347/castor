@@ -1,0 +1,25 @@
+global
+  log stdout format raw local0 info
+
+defaults
+  mode http
+  timeout client 10s
+  timeout connect 5s
+  timeout server 10s
+  timeout http-request 10s
+  log global
+
+frontend loadbalancer
+  bind :80
+  mode http
+  use_backend tors
+
+backend tors
+  balance roundrobin
+  mode http
+  option forwardfor
+  {%- for host in tor_hosts %}
+  server tor{{loop.index}} {{host}}:9080 check
+  {%- endfor %}
+
+
