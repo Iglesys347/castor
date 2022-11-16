@@ -2,7 +2,7 @@ global
   log stdout format raw local0 info
 
 defaults
-  mode http
+  mode {{proxy_type}}
   timeout client 10s
   timeout connect 5s
   timeout server 10s
@@ -10,16 +10,13 @@ defaults
   log global
 
 frontend loadbalancer
-  bind :80
-  mode http
+  bind :8080
   use_backend tors
 
 backend tors
   balance roundrobin
-  mode http
-  option forwardfor
   {%- for host in tor_hosts %}
-  server tor{{loop.index}} {{host}}:9080 check
+  server tor{{loop.index}} {{host}}:{{tor_port}} check
   {%- endfor %}
 
 
