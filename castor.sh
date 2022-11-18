@@ -6,10 +6,34 @@ normal=$(tput sgr0)
 red=$(tput setaf 1)
 green=$(tput setaf 2)
 
-castorheader="  🦫  "
+# CASTOR_HEADER=" 🌲 🦫 🌲 "
+CASTOR_HEADER="   🌲  🦫  🌲   "
+
+# Getting this app path
+CURRENT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+DOCKER_COMPOSE_PATH="$CURRENT_PATH/docker-compose.yml"
+
+spinner () {
+    local pid=$!
+    local delay=0.3
+    local i=1
+    local spin[0]=" 🌲🌲🌲🌲🌲🌲🦫"
+    local spin[1]=" 🌲🌲🌲🌲🌲🦫 "
+    local spin[2]=" 🌲🌲🌲🌲🦫🪵 "
+    local spin[3]=" 🌲🌲🌲🦫🪵🪵 "
+    local spin[4]=" 🌲🌲🦫🪵🪵🪵 "
+    local spin[5]=" 🌲🦫🪵🪵🪵🪵 "
+    local spin[6]=" 🦫🪵🪵🪵🪵🪵 "
+    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+        for i in "${spin[@]}"; do
+            echo -ne "\b$i \r"
+            sleep 0.3
+        done
+    done
+}
 
 usage() {
-    echo "$castorheader Usage: $(basename "$0") [OPTIONS] COMMAND"
+    echo "$CASTOR_HEADER Usage: $(basename "$0") [OPTIONS] COMMAND"
 }
 
 help() {
@@ -123,10 +147,11 @@ fi
 
 # Starting castor proxy
 if [ $cmd = "start" ]; then
-    echo -ne "$castorheader Starting $mode proxy on port $port... \r"
-    docker-compose up -d -V --scale tor=$tors  > /dev/null 2>&1
+    echo -ne "$CASTOR_HEADER Starting $mode proxy on port $port... \r"
+    docker-compose -f $DOCKER_COMPOSE_PATH up -d -V --scale tor=$tors  > /dev/null 2>&1 &
+    spinner
     if [ $? -eq 0 ]; then
-        echo ${green}"$castorheader Your castor $mode proxy is available at localhost:$port"${normal}
+        echo ${green}"$CASTOR_HEADER Your castor $mode proxy is available at localhost:$port"${normal}
         exit 0
     else
         echo ${red}"Failed to start castor (try using docker commands, see README)"${normal}
@@ -136,17 +161,19 @@ fi
 
 # Stopping castor proxy
 if [ $cmd = "stop" ]; then
-    echo -ne "$castorheader Stoping running castor proxy... \r"
-    docker-compose stop  > /dev/null 2>&1
+    echo -ne "$CASTOR_HEADER Stoping running castor proxy... \r"
+    docker-compose -f $DOCKER_COMPOSE_PATH stop  > /dev/null 2>&1 &
+    spinner
     if ! [ $? -eq 0 ]; then
         echo ${red}"Failed to stop castor (try using docker commands, see README)"${normal}
         exit 1
     fi
-    docker-compose down  > /dev/null 2>&1
+    docker-compose -f $DOCKER_COMPOSE_PATH down  > /dev/null 2>&1 &
+    spinner
     if ! [ $? -eq 0 ]; then
         echo ${red}"Failed to stop castor (try using docker commands, see README)"${normal}
         exit 1
     fi
-    echo ${green}"$castorheader Successfully stoped castor proxy"${normal}
+    echo ${green}"$CASTOR_HEADER Successfully stoped castor proxy"${normal}
     exit 0
 fi
