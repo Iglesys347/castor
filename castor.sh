@@ -6,7 +6,6 @@ normal=$(tput sgr0)
 red=$(tput setaf 1)
 green=$(tput setaf 2)
 
-# CASTOR_HEADER=" 🌲 🦫 🌲 "
 CASTOR_HEADER="   🌲  🦫  🌲   "
 
 # Getting this app path
