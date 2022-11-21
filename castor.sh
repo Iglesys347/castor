@@ -88,8 +88,9 @@ else
 fi
 
 # Read and export values from .env file
-if test -f .env; then
-	export $(grep -v '^#' .env | xargs)
+ENV_FILE="$CURRENT_PATH/.env"
+if test -f $ENV_FILE; then
+	export $(grep -v '^#' $ENV_FILE | xargs)
     # Set default values with env vars (if any)
     port=$PROXY_PORT
     mode=$PROXY_MODE
@@ -98,6 +99,7 @@ else
     port=8080
     mode=socks
 fi
+
 
 # set default value for tor instances
 tors=5
