@@ -13,9 +13,11 @@ def get_tor_ips():
 
     containers = [
         container for container in containers
-        if (container.attrs["NetworkSettings"]["Networks"]["net_tor"]["NetworkID"] == net_tor_id)
+        if ("net_tor" in container.attrs["NetworkSettings"]["Networks"])
+        and (container.attrs["NetworkSettings"]["Networks"]["net_tor"]["NetworkID"] == net_tor_id)
         and (container.attrs["Config"]["User"] == "tor")
     ]
+
 
     ip_addrs = [container.attrs['NetworkSettings']['Networks']["net_tor"]["IPAddress"]
                 for container in containers]
